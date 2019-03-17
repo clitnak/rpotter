@@ -36,21 +36,25 @@ pi = pigpio.pi()
 
 #NOTE pins use BCM numbering in code.  I reference BOARD numbers in my articles - sorry for the confusion!
 
-#pin for Powerswitch (Lumos,Nox)
-switch_pin = 23
-pi.set_mode(switch_pin,pigpio.OUTPUT)
+#pin for Light (Lumos,Nox)
+light_pin = 23
+pi.set_mode(light_pin,pigpio.OUTPUT)
 
-#pin for Particle (Nox)
-nox_pin = 24
-pi.set_mode(nox_pin,pigpio.OUTPUT)
+#pin for Particle Not Needed (Nox)
+#nox_pin = 24
+#pi.set_mode(nox_pin,pigpio.OUTPUT)
 
-#pin for Particle (Incendio)
-incendio_pin = 22
-pi.set_mode(incendio_pin,pigpio.OUTPUT)
+#pin for fountain (Aguamenti)
+aguamenti_pin = 22
+pi.set_mode(aguamenti_pin,pigpio.OUTPUT)
 
-#pin for Trinket (Colovario)
-trinket_pin = 12
-pi.set_mode(trinket_pin,pigpio.OUTPUT)
+#pin for Trinket Not Needed (Colovario)
+#trinket_pin = 12
+#pi.set_mode(trinket_pin,pigpio.OUTPUT)
+
+#pin for movement (Locomotor)
+move_pin = 17
+pi.set_mode(move_pin,pigpio.OUTPUT)
 
 print("Initializing point tracking")
 
@@ -62,10 +66,11 @@ blur_params = (4,4)
 dilation_params = (5, 5)
 movment_threshold = 80
 
-print("START switch_pin ON for pre-video test")
+print("START light_pin ON for pre-video test")
 pi.write(nox_pin,0)
-pi.write(incendio_pin,0)
-pi.write(switch_pin,1)
+pi.write(aguamenti_pin,0)
+pi.write(light_pin,1)
+pi.write(move_pin,1)
 
 # start capturing
 cv2.namedWindow("Raspberry Potter")
@@ -82,32 +87,41 @@ def Spell(spell):
     ig = [[0] for x in range(15)] 
     #Invoke IoT (or any other) actions here
     cv2.putText(mask, spell, (5, 25),cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255,0,0))
-    #renamed spell Aguamenti but kept Incendio naming - fix later
+    #renamed spell Aguamenti but kept aguamenti naming - fix later
 	if (spell=="Aguamenti"):
-        print("incendio_pin ON")
-        pi.write(incendio_pin,1)
+        print("aguamenti_pin ON")
+        pi.write(aguamenti_pin,1)
         #keep fountain on for 7sec
         threading.Timer(7, StopAguamenti).start() 
     elif (spell=="Lumos"):
-        print("switch_pin ON")
-        pi.write(switch_pin,1)
-        print("nox_pin OFF")
-        pi.write(nox_pin,0)
-        print("incendio_pin OFF")
-        pi.write(incendio_pin,0)	
+        print("light_pin ON")
+        pi.write(light_pin,1)
+        #print("nox_pin OFF")
+        #pi.write(nox_pin,0)
+        #print("aguamenti_pin OFF")
+        #pi.write(aguamenti_pin,0)	
     elif (spell=="Nox"):
-        print("switch_pin OFF")
-        pi.write(switch_pin,0)
-        print("nox_pin ON")
-        pi.write(nox_pin,1)
-        print("incendio_pin OFF")
-        pi.write(incendio_pin,0)	
+        print("light_pin OFF")
+        pi.write(light_pin,0)
+        #print("nox_pin ON")
+        #pi.write(nox_pin,1)
+        #print("aguamenti_pin OFF")
+        #pi.write(aguamenti_pin,0)	
+    elif (spell=="Locomotor"):
+	print("move_pin ON")
+        pi.write(move_pin,1)
+        #keep motion on for 7sec
+        threading.Timer(7, StopLocomotor).start()	
     print("CAST: %s" %spell)
     cv2.putText(frame, spell, (10,30), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 0, 255), 2)
 
 def StopAguamenti():
     #turns off fountain
-	pi.write(incendio_pin,0)
+	pi.write(aguamenti_pin,0)
+	
+def StopLocomotor():
+    #turns off motion
+	pi.write(move_pin,0)
 
 def IsGesture(a,b,c,d,i):
     print("point: %s" % i)
@@ -120,6 +134,8 @@ def IsGesture(a,b,c,d,i):
         ig[i].append("up")
     elif ((d<(b-5))&(abs(a-c)<5)):
         ig[i].append("down")
+    elif (((b-d)/(c-a))>0.9):
+	ig[i].append("ADL")
     #check for gesture patterns in array
     astr = ''.join(map(str, ig[i]))
     if "rightup" in astr:
@@ -130,7 +146,9 @@ def IsGesture(a,b,c,d,i):
     #elif "leftdown" in astr:
     #    Spell("Colovaria")
     elif "leftup" in astr:
-        Spell("Aguamenti")    
+        Spell("Aguamenti") 
+    elif "upADLright" in astr:
+	Spell("Locomotor")
     print(astr)
     
 def FindWand():
@@ -238,9 +256,9 @@ def TrackWand():
                 break
 try:
     FindWand()
-    print("START incendio_pin ON and set switch off if video is running")
-    pi.write(incendio_pin,0)
-    pi.write(switch_pin,0)      
+    print("START aguamenti_pin ON and set light off if video is running")
+    pi.write(aguamenti_pin,0)
+    pi.write(light_pin,0)      
     TrackWand()  
 finally:   
     cam.release()
