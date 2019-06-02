@@ -40,21 +40,21 @@ pi = pigpio.pi()
 light_pin = 23
 pi.set_mode(light_pin,pigpio.OUTPUT)
 
-#pin for Particle Not Needed (Nox)
-#nox_pin = 24
-#pi.set_mode(nox_pin,pigpio.OUTPUT)
-
 #pin for fountain (Aguamenti)
 aguamenti_pin = 22
 pi.set_mode(aguamenti_pin,pigpio.OUTPUT)
 
-#pin for Trinket Not Needed (Colovario)
-#trinket_pin = 12
-#pi.set_mode(trinket_pin,pigpio.OUTPUT)
-
-#pin for movement (Locomotor)
+#pin for movement (Locomotor,Aresto-Momentum)
 move_pin = 17
 pi.set_mode(move_pin,pigpio.OUTPUT)
+
+#pin for motor (Ascendio)
+motor_pin = 24
+pi.set_mode(motor_pin,pigpio.OUTPUT)
+
+#pin for candle (Incindio)
+candle_pin = 25
+pi.set_mode(candle_pin,pigpio.OUTPUT)
 
 print("Initializing point tracking")
 
@@ -87,32 +87,33 @@ def Spell(spell):
     ig = [[0] for x in range(15)] 
     #Invoke IoT (or any other) actions here
     cv2.putText(mask, spell, (5, 25),cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255,0,0))
-    #renamed spell Aguamenti but kept aguamenti naming - fix later
-	if (spell=="Aguamenti"):
+    	if (spell=="Aguamenti"):
         print("aguamenti_pin ON")
         pi.write(aguamenti_pin,1)
-        #keep fountain on for 7sec
+        #keep on for 7sec
         threading.Timer(7, StopAguamenti).start() 
     elif (spell=="Lumos"):
         print("light_pin ON")
         pi.write(light_pin,1)
-        #print("nox_pin OFF")
-        #pi.write(nox_pin,0)
-        #print("aguamenti_pin OFF")
-        #pi.write(aguamenti_pin,0)	
     elif (spell=="Nox"):
         print("light_pin OFF")
         pi.write(light_pin,0)
-        #print("nox_pin ON")
-        #pi.write(nox_pin,1)
-        #print("aguamenti_pin OFF")
-        #pi.write(aguamenti_pin,0)	
     elif (spell=="Locomotor"):
 	print("move_pin ON")
         pi.write(move_pin,1)
-        #keep motion on for 7sec
-        threading.Timer(7, StopLocomotor).start()	
-    print("CAST: %s" %spell)
+        #keep on for 7sec
+        threading.Timer(7, StopLocomotor).start()
+    elif (spell=="Incindio"):
+        print("candle_pin ON")
+        pi.write(candle_pin,1)
+        #keep on for 7sec
+        threading.Timer(7, StopIncindio).start() 
+    elif (spell=="Ascendio"):
+        print("motor_pin ON")
+        pi.write(motor_pin,1)
+	#keep on for 7sec
+        threading.Timer(7, StopAscendio).start()
+        print("CAST: %s" %spell)
     cv2.putText(frame, spell, (10,30), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 0, 255), 2)
 
 def StopAguamenti():
@@ -122,6 +123,14 @@ def StopAguamenti():
 def StopLocomotor():
     #turns off motion
 	pi.write(move_pin,0)
+	
+def StopIncindio():
+    #turns off candle
+	pi.write(candle_pin,0)
+	
+def StopAscendio():
+    #turns off motor
+	pi.write(motor_pin,0)
 
 def IsGesture(a,b,c,d,i):
     print("point: %s" % i)
@@ -134,21 +143,30 @@ def IsGesture(a,b,c,d,i):
         ig[i].append("up")
     elif ((d<(b-5))&(abs(a-c)<5)):
         ig[i].append("down")
+    #these are for moving diagnally
+	#Angle Down Left = ADL
     elif (((b-d)/(c-a))>0.9):
 	ig[i].append("ADL")
+	#Angle Down Right = ADR
+    elif (((b-d)/(a-c))>0.9):
+	ig[i].append("ADR")
+	#Angle Up Right = AUR
+    elif (((d-b)/(a-c))>0.9):
+	ig[i].append("AUR")
     #check for gesture patterns in array
     astr = ''.join(map(str, ig[i]))
     if "rightup" in astr:
         Spell("Lumos")
     elif "rightdown" in astr:
         Spell("Nox")
-	#Colovaria spell removed
-    #elif "leftdown" in astr:
-    #    Spell("Colovaria")
     elif "leftup" in astr:
-        Spell("Aguamenti") 
+        Spell("Ascendio") 
     elif "upADLright" in astr:
 	Spell("Locomotor")
+    elif "AURADR" in astr:
+	Spell("Aguamenti")
+    elif "AURADRleft" in astr:
+	Spell("Incindio")
     print(astr)
     
 def FindWand():
