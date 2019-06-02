@@ -112,7 +112,7 @@ def Spell(spell):
         print("motor_pin ON")
         pi.write(motor_pin,1)
 	#keep on for 7sec
-        threading.Timer(7, StopAscendio).start()
+        threading.Timer(2, StopAscendio).start()
         print("CAST: %s" %spell)
     cv2.putText(frame, spell, (10,30), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 0, 255), 2)
 
