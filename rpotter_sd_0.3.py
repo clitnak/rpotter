@@ -71,7 +71,7 @@ dilation_params = (5, 5)
 movment_threshold = 80
 
 print("START light_pin ON for pre-video test")
-pi.write(nox_pin,0)
+pi.write(light_pin,0)
 pi.write(aguamenti_pin,0)
 pi.write(light_pin,1)
 pi.write(move_pin,1)
