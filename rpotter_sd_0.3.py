@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# PART 1
 '''
   _\
   \
@@ -8,7 +9,7 @@ O O-O
   O
   
 Raspberry Potter
-Ollivander - Version 0.2 
+Ollivander - Version 0.3 
 Use your own wand or your interactive Harry Potter wands to control the IoT.  
 Copyright (c) 2016 Sean O'Brien.  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
@@ -34,7 +35,9 @@ MODES=["INPUT", "OUTPUT", "ALT5", "ALT4", "ALT0", "ALT1", "ALT2", "ALT3"]
 
 pi = pigpio.pi()
 
-#NOTE pins use BCM numbering in code.  I reference BOARD numbers in my articles - sorry for the confusion!
+# PART 2
+#NOTE pins use BCM numbering in code.  
+
 
 #pin for Light (Lumos,Nox)
 light_pin = 23
@@ -58,6 +61,7 @@ pi.set_mode(candle_pin,pigpio.OUTPUT)
 
 print("Initializing point tracking")
 
+# PART 3
 # Parameters
 lk_params = dict( winSize  = (15,15),
                   maxLevel = 2,
@@ -82,6 +86,7 @@ cam.set(3, 640)
 cam.set(4, 480)
 
 
+# PART 4
 def Spell(spell):    
     #clear all checks
     ig = [[0] for x in range(15)] 
@@ -111,7 +116,7 @@ def Spell(spell):
     elif (spell=="Ascendio"):
         print("motor_pin ON")
         pi.write(motor_pin,1)
-	#keep on for 7sec
+	#keep on for 2ec
         threading.Timer(2, StopAscendio).start()
         print("CAST: %s" %spell)
     cv2.putText(frame, spell, (10,30), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 0, 255), 2)
@@ -131,6 +136,8 @@ def StopIncindio():
 def StopAscendio():
     #turns off motor
 	pi.write(motor_pin,0)
+	
+# PART 5A	
 
 def IsGesture(a,b,c,d,i):
     print("point: %s" % i)
@@ -153,6 +160,7 @@ def IsGesture(a,b,c,d,i):
 	#Angle Up Right = AUR
     elif (((d-b)/(a-c))>0.9):
 	ig[i].append("AUR")
+    # PART 5B 
     #check for gesture patterns in array
     astr = ''.join(map(str, ig[i]))
     if "rightup" in astr:
@@ -169,6 +177,8 @@ def IsGesture(a,b,c,d,i):
 	Spell("Incindio")
     print(astr)
     
+# PART 6
+
 def FindWand():
     global rval,old_frame,old_gray,p0,mask,color,ig,img,frame
     try:
