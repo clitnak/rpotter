@@ -11,8 +11,8 @@ import wandtracker
 ########### PARAMETERS #############
 
 # Smartthings token
-tokenFile = open("../smartthings-token.text", "r") 
-token = tokenFile.readline()
+tokenFile = open("../smartthings-token.txt", "r") 
+token = tokenFile.readline().rstrip("\n")
 
 # display intra-processing images 1 through 12
 display=12
