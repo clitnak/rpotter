@@ -13,7 +13,8 @@ You'll need:
 create a file named smartthings-token.txt and ensure your token is on the first line. 
 Adjust main.py to map spells cast to devices triggered. 
 
-===================
+------------------------
+
 ORIGINAL Home base for the project is at https://www.raspberrypotter.net/
 
 Forked by DIYProjectParty
