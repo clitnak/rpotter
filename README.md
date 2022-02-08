@@ -1,5 +1,5 @@
 # Raspberry Potter
-Use a wand to control the IoT (Internet of Things)
+Use a wand to control SmartThings
 
 You'll need:
 - Raspberry Pi
@@ -8,10 +8,12 @@ You'll need:
 - Python 3
 - OpenCV
 - Some sort of IR reflective wand (like the wands you get at Universal Studios)
-- Things you want to control
+- Smartthings
 
-Fan made and supported - not affiliated with Universal Studios.  Be sure to watch this repo for more info!  Feedback and help appreciated!  I'll be posting with updates including how to make your own IR reflective wands.  
+create a file named smartthings-token.txt and ensure your token is on the first line. 
+Adjust main.py to map spells cast to devices triggered. 
 
-Home base for the project is at https://www.raspberrypotter.net/
+===================
+ORIGINAL Home base for the project is at https://www.raspberrypotter.net/
 
 Forked by DIYProjectParty
